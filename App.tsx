@@ -32,7 +32,6 @@ const App: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeAdminTab, setActiveAdminTab] = useState<'대시보드' | '상품관리' | '주문현황'>('대시보드');
   
-  // New Product Form State
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
     name: '',
     tagline: '',
@@ -109,11 +108,8 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full max-w-[480px] mx-auto min-h-screen bg-white shadow-2xl overflow-x-hidden pb-32">
-      
-      {/* View Switcher: Store vs Admin */}
       {view === 'store' ? (
         <>
-          {/* Hero Section */}
           <section className="relative h-[600px] w-full">
             <div 
               className="absolute inset-0 bg-cover bg-center"
@@ -142,7 +138,6 @@ const App: React.FC = () => {
             </div>
           </section>
 
-          {/* Features Section */}
           <section className="py-16 px-6 bg-brand-bg">
             <div className="flex flex-col gap-6">
               {FEATURES.map((feature, idx) => (
@@ -159,7 +154,6 @@ const App: React.FC = () => {
             </div>
           </section>
 
-          {/* Products Section */}
           <section ref={productsRef} className="py-16 px-6 bg-white rounded-t-[3rem] -mt-8 relative z-20">
             <h2 className="text-3xl font-black text-center mb-10 text-brand-dark">오늘의 추천</h2>
             
@@ -222,7 +216,6 @@ const App: React.FC = () => {
             </div>
           </section>
 
-          {/* Testimonials Section */}
           <section className="py-16 bg-white overflow-hidden">
             <h2 className="text-2xl font-black text-center mb-8 text-brand-dark">고객님들의 소중한 후기</h2>
             <div className="flex overflow-x-auto gap-5 px-6 pb-6 scrollbar-hide snap-x snap-mandatory">
@@ -257,7 +250,6 @@ const App: React.FC = () => {
           </section>
         </>
       ) : (
-        /* Admin View Content */
         <div className="bg-brand-bg min-h-screen pt-8 px-6 pb-20 relative">
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -375,7 +367,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Footer (Always visible) */}
       <footer className="py-12 px-8 text-center bg-brand-bg border-t border-[#ece7e8]">
         <h3 className="text-xl font-black text-brand-dark mb-4 tracking-tight">반디앤딸기</h3>
         <p className="text-brand-gray text-sm leading-relaxed mb-8 max-w-[240px] mx-auto">
@@ -391,11 +382,10 @@ const App: React.FC = () => {
           </button>
         </div>
         <p className="text-[10px] font-bold text-brand-gray/50 uppercase tracking-widest">
-          © 2024 Bandi & Strawberry. All rights reserved.
+          &copy; 2024 Bandi & Strawberry. All rights reserved.
         </p>
       </footer>
 
-      {/* Sticky Bottom CTA (Only on Store View) */}
       {view === 'store' && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-[440px] px-4 z-50">
           <button 
@@ -416,7 +406,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Cart Badge UI (Only on Store View) */}
       {view === 'store' && cartCount > 0 && (
         <button 
           onClick={() => setIsCartOpen(true)}
@@ -433,7 +422,6 @@ const App: React.FC = () => {
         </button>
       )}
 
-      {/* Add Product Modal Overlay */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white w-full max-w-[480px] rounded-t-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300">
@@ -518,7 +506,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Cart Modal Overlay */}
       {isCartOpen && (
         <div className="fixed inset-0 z-[110] flex items-end justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white w-full max-w-[480px] rounded-t-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300 flex flex-col max-h-[85vh]">
