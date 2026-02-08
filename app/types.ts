@@ -9,6 +9,17 @@ export interface Product {
   features: string[];
   badge?: string;
   isPremium?: boolean;
+  origin?: {
+    location: string;
+    farmName: string;
+    description: string;
+  };
+  nutrition?: {
+    calories: string;
+    sugarContent: string;
+    vitaminC: string;
+    fiber: string;
+  };
 }
 
 export interface Review {

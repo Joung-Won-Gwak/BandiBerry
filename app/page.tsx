@@ -32,6 +32,7 @@ export default function Home() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeAdminTab, setActiveAdminTab] = useState<'대시보드' | '상품관리' | '주문현황'>('대시보드');
+  const [expandedProductIds, setExpandedProductIds] = useState<Set<string>>(new Set());
   
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
     name: '',
@@ -46,6 +47,15 @@ export default function Home() {
 
   const cartCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
   const cartTotal = useMemo(() => cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0), [cart]);
+
+  const toggleExpand = (id: string) => {
+    setExpandedProductIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const scrollToProducts = () => {
     if (view !== 'store') setView('store');
@@ -165,61 +175,119 @@ export default function Home() {
             </div>
             
             <div className="flex flex-col gap-10">
-              {products.map((product) => (
-                <div 
-                  key={product.id} 
-                  className={`relative p-8 rounded-[3rem] flex flex-col gap-5 border transition-all ${
-                    product.isPremium 
-                      ? 'border-primary/20 premium-card-shadow bg-white' 
-                      : 'border-brand-dark/5 bg-brand-bg shadow-sm'
-                  }`}
-                >
-                  {product.badge && (
-                    <div className={`absolute top-0 right-0 px-5 py-2 rounded-bl-[1.5rem] text-[10px] font-black tracking-widest text-white uppercase ${
-                      product.badge === '신상품' ? 'bg-[#00c853]' : product.isPremium ? 'bg-primary' : 'bg-brand-dark'
-                    }`}>
-                      {product.badge}
-                    </div>
-                  )}
-
-                  <div className="flex justify-between items-start">
-                    <div className="max-w-[60%]">
-                      {product.isPremium && <span className="text-primary text-[10px] font-black tracking-[0.2em] block mb-2 uppercase">Premium Selection</span>}
-                      <h3 className="text-2xl font-extrabold text-brand-dark mb-2 leading-tight">{product.name}</h3>
-                      <p className="text-brand-gray text-sm leading-relaxed">{product.tagline}</p>
-                    </div>
-                    <div 
-                      className="w-24 h-24 rounded-[2rem] bg-cover bg-center border-4 border-white shadow-xl flex-shrink-0"
-                      style={{ backgroundImage: `url(${product.image})` }}
-                    />
-                  </div>
-
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-3xl font-extrabold text-brand-dark tracking-tight">₩{product.price.toLocaleString()}</span>
-                    <span className="text-brand-gray font-bold text-sm"> / {product.unit}</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-2 py-4 border-t border-brand-dark/5">
-                    {product.features.map((f, i) => (
-                      <div key={i} className="flex items-center gap-3 text-sm font-semibold text-brand-dark/70">
-                        <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
-                        {f}
-                      </div>
-                    ))}
-                  </div>
-
-                  <button 
-                    onClick={() => handleAddToCart(product)}
-                    className={`w-full py-5 rounded-2xl font-extrabold text-sm transition-all transform active:scale-[0.98] ${
+              {products.map((product) => {
+                const isExpanded = expandedProductIds.has(product.id);
+                return (
+                  <div 
+                    key={product.id} 
+                    className={`relative group p-8 rounded-[3rem] flex flex-col gap-5 border transition-all duration-300 ${
                       product.isPremium 
-                        ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-[#d01030]' 
-                        : 'bg-brand-dark text-white hover:bg-black'
+                        ? 'border-primary/20 premium-card-shadow bg-white' 
+                        : 'border-brand-dark/5 bg-brand-bg shadow-sm'
                     }`}
                   >
-                    장바구니 담기
-                  </button>
-                </div>
-              ))}
+                    {product.badge && (
+                      <div className={`absolute top-0 right-0 px-5 py-2 rounded-bl-[1.5rem] text-[10px] font-black tracking-widest text-white uppercase z-10 ${
+                        product.badge === '신상품' ? 'bg-[#00c853]' : product.isPremium ? 'bg-primary' : 'bg-brand-dark'
+                      }`}>
+                        {product.badge}
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-start">
+                      <div className="max-w-[60%]">
+                        {product.isPremium && <span className="text-primary text-[10px] font-black tracking-[0.2em] block mb-2 uppercase">Premium Selection</span>}
+                        <h3 className="text-2xl font-extrabold text-brand-dark mb-2 leading-tight">{product.name}</h3>
+                        <p className="text-brand-gray text-sm leading-relaxed">{product.tagline}</p>
+                      </div>
+                      <div className="w-24 h-24 rounded-[2rem] border-4 border-white shadow-xl flex-shrink-0 overflow-hidden relative">
+                        <img 
+                          src={product.image} 
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-125"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-3xl font-extrabold text-brand-dark tracking-tight">₩{product.price.toLocaleString()}</span>
+                      <span className="text-brand-gray font-bold text-sm"> / {product.unit}</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2 py-4 border-t border-brand-dark/5">
+                      {product.features.map((f, i) => (
+                        <div key={i} className="flex items-center gap-3 text-sm font-semibold text-brand-dark/70">
+                          <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
+                          {f}
+                        </div>
+                      ))}
+                    </div>
+
+                    {product.origin && (
+                      <div className="flex flex-col gap-4 border-t border-brand-dark/5 pt-4">
+                        <button 
+                          onClick={() => toggleExpand(product.id)}
+                          className="flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-brand-gray/80 hover:text-primary transition-colors"
+                        >
+                          {isExpanded ? '상세 정보 숨기기' : '산지 및 영양 정보 보기'}
+                          <span className={`material-symbols-outlined transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</span>
+                        </button>
+                        
+                        {isExpanded && (
+                          <div className="flex flex-col gap-6 py-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div className="bg-brand-bg/50 p-5 rounded-[1.5rem] border border-brand-dark/5">
+                              <div className="flex items-center gap-2 mb-3">
+                                <span className="material-symbols-outlined text-primary text-[20px]">location_on</span>
+                                <h4 className="text-xs font-black uppercase tracking-widest text-brand-dark">생산지 정보</h4>
+                              </div>
+                              <div className="flex flex-col gap-1 ml-7">
+                                <p className="text-sm font-extrabold text-brand-dark">{product.origin.location} | {product.origin.farmName}</p>
+                                <p className="text-xs font-medium text-brand-gray leading-relaxed">{product.origin.description}</p>
+                              </div>
+                            </div>
+
+                            <div className="bg-white p-5 rounded-[1.5rem] border border-brand-dark/5">
+                              <div className="flex items-center gap-2 mb-4">
+                                <span className="material-symbols-outlined text-primary text-[20px]">nutrition</span>
+                                <h4 className="text-xs font-black uppercase tracking-widest text-brand-dark">영양 성분</h4>
+                              </div>
+                              <div className="grid grid-cols-2 gap-4 ml-7">
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-[10px] font-black text-brand-gray/60 uppercase">열량</span>
+                                  <span className="text-xs font-extrabold text-brand-dark">{product.nutrition?.calories}</span>
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-[10px] font-black text-brand-gray/60 uppercase">평균 당도</span>
+                                  <span className="text-xs font-extrabold text-primary">{product.nutrition?.sugarContent}</span>
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-[10px] font-black text-brand-gray/60 uppercase">비타민 C</span>
+                                  <span className="text-xs font-extrabold text-brand-dark">{product.nutrition?.vitaminC}</span>
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-[10px] font-black text-brand-gray/60 uppercase">식이섬유</span>
+                                  <span className="text-xs font-extrabold text-brand-dark">{product.nutrition?.fiber}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <button 
+                      onClick={() => handleAddToCart(product)}
+                      className={`w-full py-5 rounded-2xl font-extrabold text-sm transition-all transform active:scale-[0.98] ${
+                        product.isPremium 
+                          ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-[#d01030]' 
+                          : 'bg-brand-dark text-white hover:bg-black'
+                      }`}
+                    >
+                      장바구니 담기
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
@@ -230,14 +298,16 @@ export default function Home() {
               {REVIEWS.map((review) => (
                 <div 
                   key={review.id} 
-                  className="snap-center flex-shrink-0 w-[300px] p-7 bg-white rounded-[2.5rem] border border-brand-dark/5 shadow-sm flex flex-col gap-5 hover-lift"
+                  className="snap-center flex-shrink-0 w-[300px] p-7 bg-white rounded-[2.5rem] border border-brand-dark/5 shadow-sm flex flex-col gap-5 hover-lift group"
                 >
                   <div className="flex items-center gap-4">
-                    <img 
-                      src={review.avatar} 
-                      alt={review.author} 
-                      className="w-14 h-14 rounded-full object-cover border-2 border-primary/10 p-0.5"
-                    />
+                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary/10 p-0.5">
+                      <img 
+                        src={review.avatar} 
+                        alt={review.author} 
+                        className="w-full h-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
                     <div>
                       <h4 className="font-extrabold text-brand-dark text-base">{review.author}</h4>
                       <div className="flex gap-0.5 text-primary">
@@ -316,7 +386,62 @@ export default function Home() {
             </div>
           )}
 
-          {/* ... (Admin Tabs remain structurally similar but with refined brand classes) */}
+          {activeAdminTab === '상품관리' && (
+            <div className="bg-white rounded-3xl border border-brand-dark/5 shadow-sm overflow-hidden">
+              <div className="p-5 border-b border-brand-bg flex justify-between items-center">
+                <h4 className="text-sm font-black text-brand-dark">재고 목록</h4>
+                <button 
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="text-[10px] font-black text-primary uppercase bg-red-50 px-3 py-1.5 rounded-lg border border-primary/10 hover:bg-red-100"
+                >
+                  + 새 상품 추가
+                </button>
+              </div>
+              {products.map((p) => (
+                <div key={p.id} className="p-5 border-b border-brand-bg flex items-center justify-between last:border-0 group">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-brand-bg flex items-center justify-center overflow-hidden border border-brand-dark/5">
+                      <img src={p.image} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-125" alt="" />
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-extrabold text-brand-dark">{p.name}</h5>
+                      <p className="text-[10px] font-bold text-brand-gray uppercase tracking-tighter">₩{p.price.toLocaleString()} | {p.unit}</p>
+                    </div>
+                  </div>
+                  <button className="w-8 h-8 bg-brand-bg rounded-full flex items-center justify-center text-brand-dark active:scale-90 transition-transform">
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeAdminTab === '주문현황' && (
+            <div className="flex flex-col gap-4">
+              {MOCK_ORDERS.map((o) => (
+                <div key={o.id} className="bg-white p-5 rounded-3xl border border-brand-dark/5 shadow-sm hover-lift">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <span className="text-[10px] font-black text-brand-gray uppercase">{o.id}</span>
+                      <h5 className="font-extrabold text-brand-dark">{o.customer}</h5>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                      o.status === '결제완료' ? 'bg-orange-100 text-orange-600' :
+                      o.status === '배송중' ? 'bg-blue-100 text-blue-600' :
+                      'bg-green-100 text-green-600'
+                    }`}>
+                      {o.status}
+                    </span>
+                  </div>
+                  <div className="text-xs text-brand-gray font-medium mb-4">{o.items}</div>
+                  <div className="flex justify-between items-center pt-3 border-t border-brand-bg">
+                    <span className="text-sm font-black text-brand-dark">₩{o.total.toLocaleString()}</span>
+                    <span className="text-[10px] text-brand-gray font-bold">{o.date}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -378,7 +503,182 @@ export default function Home() {
         </button>
       )}
 
-      {/* Modals & More UI elements follow the same theme... */}
+      {/* Cart Modal */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-[110] flex items-end justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-[480px] rounded-t-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300 flex flex-col max-h-[85vh]">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-black text-brand-dark">장바구니</h3>
+              <button 
+                onClick={() => setIsCartOpen(false)}
+                className="w-10 h-10 rounded-full bg-brand-bg flex items-center justify-center"
+              >
+                 <span className="material-symbols-outlined text-brand-dark">close</span>
+              </button>
+            </div>
+
+            {cart.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-20 h-20 bg-brand-bg rounded-full flex items-center justify-center text-brand-gray mb-4">
+                   <span className="material-symbols-outlined text-4xl">shopping_cart</span>
+                </div>
+                <h4 className="text-lg font-black text-brand-dark mb-2">장바구니가 비어 있습니다</h4>
+                <p className="text-brand-gray text-sm mb-8">신선한 딸기를 담아보세요!</p>
+                <button 
+                  onClick={() => { setIsCartOpen(false); scrollToProducts(); }}
+                  className="bg-brand-dark text-white px-8 py-3 rounded-full font-black text-sm"
+                >
+                  쇼핑 시작하기
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide">
+                  <div className="flex flex-col gap-6 mb-8">
+                    {cart.map((item) => (
+                      <div key={item.product.id} className="flex gap-4 items-center group/cartitem">
+                        <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 border border-brand-dark/5">
+                          <img 
+                            src={item.product.image} 
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover/cartitem:scale-110" 
+                            alt="" 
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-extrabold text-brand-dark truncate">{item.product.name}</h4>
+                          <p className="text-brand-gray text-[10px] font-bold uppercase mb-2">₩{item.product.price.toLocaleString()} / {item.product.unit}</p>
+                          <div className="flex items-center gap-3">
+                            <button 
+                              onClick={() => updateQuantity(item.product.id, -1)}
+                              className="w-7 h-7 bg-brand-bg rounded-full flex items-center justify-center text-brand-dark font-black active:scale-90"
+                            >
+                              -
+                            </button>
+                            <span className="text-sm font-black w-4 text-center">{item.quantity}</span>
+                            <button 
+                              onClick={() => updateQuantity(item.product.id, 1)}
+                              className="w-7 h-7 bg-brand-bg rounded-full flex items-center justify-center text-brand-dark font-black active:scale-90"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-black text-brand-dark">₩{(item.product.price * item.quantity).toLocaleString()}</p>
+                          <button 
+                            onClick={() => updateQuantity(item.product.id, -item.quantity)}
+                            className="text-[10px] font-bold text-red-400 mt-2 uppercase tracking-widest active:scale-90"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t border-brand-bg pt-6 mt-auto">
+                  <div className="flex justify-between items-center mb-6">
+                    <span className="text-brand-gray font-bold">총 결제 금액</span>
+                    <span className="text-3xl font-black text-brand-dark">₩{cartTotal.toLocaleString()}</span>
+                  </div>
+                  <button 
+                    onClick={() => { alert("주문이 완료되었습니다! 감사합니다."); setCart([]); setIsCartOpen(false); }}
+                    className="w-full bg-primary text-white py-5 rounded-3xl font-black text-base shadow-xl shadow-primary/20 active:scale-[0.98] transition-all"
+                  >
+                    지금 결제하기
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Add Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-[480px] rounded-t-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-black text-brand-dark">새 상품 추가</h3>
+              <button 
+                onClick={() => setIsAddModalOpen(false)}
+                className="w-10 h-10 rounded-full bg-brand-bg flex items-center justify-center"
+              >
+                 <span className="material-symbols-outlined text-brand-dark">close</span>
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto scrollbar-hide">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-black text-brand-gray uppercase tracking-widest ml-1">상품명</label>
+                <input 
+                  type="text" 
+                  autoFocus
+                  value={newProduct.name || ''}
+                  onChange={e => setNewProduct(prev => ({...prev, name: e.target.value}))}
+                  placeholder="예: 여름 한정 딸기"
+                  className="w-full bg-brand-bg rounded-2xl px-5 py-4 text-sm font-bold border border-transparent focus:border-primary/20 outline-none transition-all"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-black text-brand-gray uppercase tracking-widest ml-1">설명 문구</label>
+                <input 
+                  type="text" 
+                  value={newProduct.tagline || ''}
+                  onChange={e => setNewProduct(prev => ({...prev, tagline: e.target.value}))}
+                  placeholder="짧은 설명을 입력하세요..."
+                  className="w-full bg-brand-bg rounded-2xl px-5 py-4 text-sm font-bold border border-transparent focus:border-primary/20 outline-none transition-all"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-black text-brand-gray uppercase tracking-widest ml-1">가격 (₩)</label>
+                  <input 
+                    type="number" 
+                    value={newProduct.price || ''}
+                    onChange={e => setNewProduct(prev => ({...prev, price: parseInt(e.target.value) || 0}))}
+                    placeholder="15000"
+                    className="w-full bg-brand-bg rounded-2xl px-5 py-4 text-sm font-bold border border-transparent focus:border-primary/20 outline-none transition-all"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-black text-brand-gray uppercase tracking-widest ml-1">단위</label>
+                  <select 
+                    value={newProduct.unit}
+                    onChange={e => setNewProduct(prev => ({...prev, unit: e.target.value}))}
+                    className="w-full bg-brand-bg rounded-2xl px-5 py-4 text-sm font-bold border border-transparent focus:border-primary/20 outline-none transition-all appearance-none"
+                  >
+                    <option value="500g">500g</option>
+                    <option value="1kg">1kg</option>
+                    <option value="2kg">2kg</option>
+                    <option value="박스">박스</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-black text-brand-gray uppercase tracking-widest ml-1">이미지 URL</label>
+                <input 
+                  type="text" 
+                  value={newProduct.image || ''}
+                  onChange={e => setNewProduct(prev => ({...prev, image: e.target.value}))}
+                  className="w-full bg-brand-bg rounded-2xl px-5 py-4 text-xs font-mono border border-transparent focus:border-primary/20 outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <button 
+              onClick={handleSaveNewProduct}
+              className="w-full bg-primary text-white py-5 rounded-3xl font-black text-base mt-8 shadow-xl shadow-primary/20 active:scale-[0.98] transition-all"
+            >
+              상품 저장하기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

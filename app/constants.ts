@@ -28,7 +28,18 @@ export const PRODUCTS: Product[] = [
     unit: '500g',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZub1gXWVfxFvt5242nDxR5XOvsG5QCrXV7oDazU-ZgALCeW4LNnB25VpC-9FSbdBW04wvT1bk2YEM1GrRQM3jS_klrSW9WGQZzOlItFkkH0v3stFaocZWGkESAamqKi728a8ZDxDztFGJ0Io_kGebYwF3m1RQRi91QSK2aNFMNJLvc3G5QMZB055zShL5zLfNYjQYigNkmdqm_CpM-hQZ_lypntaDpL31cj1WQc2jFrBkrY5ajcSYrjkyFhb_X5Fe5iHsHnP1LKeR',
     features: ['매일 새벽 수확', '친환경 포장재 사용'],
-    badge: '인기 상품'
+    badge: '인기 상품',
+    origin: {
+      location: '경남 산청군',
+      farmName: '반디 햇살 농원',
+      description: '지리산 자락의 깨끗한 공기와 맑은 물로 재배하여 아삭한 식감이 일품입니다.'
+    },
+    nutrition: {
+      calories: '32kcal (100g당)',
+      sugarContent: '11-12 Brix',
+      vitaminC: '62mg',
+      fiber: '2.0g'
+    }
   },
   {
     id: 'premium-box',
@@ -39,7 +50,18 @@ export const PRODUCTS: Product[] = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA4AWwLvQDbniIlSLb7kEvxnWVyO-aYgaCn7D0y-aCSmprWc85mlIBtiQ-qEHO0TjnEH6yHbgfqKBxX0TQj9uRkAuNE8PhRRscuNU-XSitDGYTynUa6EZPo-75ZZm6SR1zJY55VxNNhqCK8J5nrIoTHOdZQkmSN1uaiojUzX30tBS8AtVxCZ0rk6xJrMP83BneN2HueVZjRenp7R27cZ6zZb41mdeMQhrUCeeMJn1O-7URNnzR-BoHNuZ6Qa98846EcOYPhM8RQL6SR',
     features: ['최상급 당도 보장', '고급 선물용 포장', '우선 배송 서비스'],
     badge: '가성비 최고',
-    isPremium: true
+    isPremium: true,
+    origin: {
+      location: '충남 논산시',
+      farmName: '연무 프리미엄 팜',
+      description: '전국 최대 딸기 산지인 논산에서 가장 당도가 높은 품종만을 선별하여 재배합니다.'
+    },
+    nutrition: {
+      calories: '35kcal (100g당)',
+      sugarContent: '13-14 Brix',
+      vitaminC: '75mg',
+      fiber: '2.2g'
+    }
   }
 ];
 
